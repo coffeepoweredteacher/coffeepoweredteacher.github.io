@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<meta content="Display Webcam Stream" name="title">
+<title>Visualizer</title>
+  
+<style>
+#videoElement {
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
+
+
+  #stage{background:#000;width:calc(100% - 76px);height:calc(99% - 6px);overflow:hidden;
+         position:absolute;margin:0em 0;}
+  #stage span{font-size:20px;color:#000;display:block;padding:2em;}
+  video{width:1280px;height:720px;position:absolute;top:0;left:0;filter: url(#NONE);}
+  #controls{position:absolute;top: 15%;right:0px;width:60px;}
+  #change{position:absolute;width:60px;}
+  button{font-size:150%;text-align:center;display:block;}
+  #change button{width:40px;border:none;background:#000;color:#000;padding-bottom:5px;height:37px;}
+#change2 button{width:60px;border:none;background:#000;color:#000;padding-bottom:5px;height:60px;}
+#change3 button{width:60px;border:none;background:#2980b9;color:#fff;padding-bottom:5px;height:24px;}
+  #logo{position:absolute;top:0px;right:0px;width:60px;}
+  #logo{position:absolute;bottom:0px;right:0px;width:60px;background:#222;color:#f1c40f;font-family: Segoe UI;font-weight: Bold; font-size:67%;}
+  #logo2{position:absolute;bottom:0px;right:0px;width:60px;}
+</style>
+</head>
+<body bgcolor="#000">
+<div id="logo"><center>
+<div id="change2">
+<button style="background: url(Spotlight-60.png)no-repeat center" onclick="if(document.getElementById('spoiler') .style.display=='none') {document.getElementById('spoiler') .style.display=''}else{document.getElementById('spoiler') .style.display='none'}"> </button>
+</div><div id="change3"><button style="background: url(Filter-24.png)no-repeat center" class="filter"> </button></div><span> </span>
+</div>
+
+<div id="spoiler" style="display:visible">
+ <div id="stage">
+    <video style="left: 0px; top: 0px; transform: rotate(0deg) scale(1);" autoplay="true"; id="videoElement";filter: grayscale(100%);>
+     
+    </video>
+
+
+
+
+
+
+<svg id='image' version="1.1" xmlns="http://www.w3.org/2000/svg">
+<defs>
+
+<filter id="NONE">
+<feComponentTransfer>
+</feComponentTransfer>
+</filter>
+
+<filter id="B&W">
+<feColorMatrix values="0.3333 0.3333 0.3333 0 0
+                                 0.3333 0.3333 0.3333 0 0
+                                0.3333 0.3333 0.3333 0 0
+                                0      0      0      1 0"/>
+</filter>
+
+  <filter id="SHARP">
+  <feConvolveMatrix order="3 3" kernelMatrix="0, -1,  0,
+    -1,  5, -1,
+     0, -1,  0"/>
+  </filter>
+</defs>
+</svg>
+
+
+
+
+
+
+
+
+
+  </div></div>
+  <center><div id="controls"><div id="change"><button class="play"> </button><button class="zoomin"></button><button class="zoomout"> </button><button class="left"> </button><button class="right"> </button><button class="up"> </button><button class="down"> </button><button class="rotateleft"> </button><button class="rotateright"> </button><button class="reset"> </button></div></div>
+
+
+<script>
+
+var video = document.querySelector('video'),
+ button = document.querySelector(".filter"),
+ current = document.querySelector("span"),
+ filters = ['B&W','SHARP','NONE'],
+ i = 0;
+
+button.addEventListener('click',function(){
+  
+  current.innerHTML = filters[i];
+  video.style.webkitFilter='url(#'+filters[i]+')';
+  video.style.mozFilter='url(#'+filters[i]+')';
+  video.style.filter='url(#'+filters[i]+')';
+  
+  i++;
+  
+  if (i>=filters.length) i=0;
+  
+}, false);
+
+
+var video = document.querySelector("#videoElement");
+ 
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+ 
+if (navigator.getUserMedia) {       
+    navigator.getUserMedia({video: true}, handleVideo, videoError);
+}
+ 
+function handleVideo(stream) {
+    video.src = window.URL.createObjectURL(stream);
+}
+ 
+function videoError(e) {
+    // do something
+}
+
+/*
+  Zooming and rotating HTML5 video player
+  Homepage: http://github.com/codepo8/rotatezoomHTML5video
+  Copyright (c) 2011 Christian Heilmann
+  Code licensed under the BSD License:
+  http://wait-till-i.com/license.txt
+*/
+(function(){
+
+/* predefine zoom and rotate */
+  var zoom = 1,
+      rotate = 0;
+
+/* Grab the necessary DOM elements */
+  var stage = document.getElementById('stage'),
+      v = document.getElementsByTagName('video')[0],
+      controls = document.getElementById('controls');
+  
+/* Array of possible browser specific settings for transformation */
+  var properties = ['transform', 'WebkitTransform', 'MozTransform',
+                    'msTransform', 'OTransform'],
+      prop = properties[0];
+
+/* Iterators and stuff */    
+  var i,j,t;
+  
+/* Find out which CSS transform the browser supports */
+  for(i=0,j=properties.length;i<j;i++){
+    if(typeof stage.style[properties[i]] !== 'undefined'){
+      prop = properties[i];
+      break;
+    }
+  }
+
+/* Position video */
+  v.style.left = 0;
+  v.style.top = 0;
+
+/* If there is a controls element, add the player buttons */
+/* TODO: why does Opera not display the rotation buttons? */
+  if(controls){
+    controls.innerHTML =  
+                          '<div id="change">' +
+                            '<button style="background: url(ppause.png)no-repeat center" class="play"> </button>'+
+                            '<button style="background: url(Zoom%20In-32.png)no-repeat center" class="zoomin"> </button>' +
+                            '<button style="background: url(Zoom%20Out-32.png)no-repeat center" class="zoomout"> </button>' +
+                            '<button style="background: url(Left-32.png)no-repeat center" class="left"> </button>' +
+                            '<button style="background: url(Right-32.png)no-repeat center" class="right"> </button>' +
+                            '<button style="background: url(Up-32.png)no-repeat center" class="up"> </button>' +
+                            '<button style="background: url(Down-32.png)no-repeat center" class="down"> </button>' +
+                            '<button style="background: url(Rotate%20Right-32.png)no-repeat center" class="rotateleft"> </button>' +
+                            '<button style="background: url(Rotate%20Left-32.png)no-repeat center" class="rotateright"> </button>' +
+                            '<button style="background: url(reset.png)no-repeat center" class="reset"> </button>' +
+                          '</div>';
+  }
+
+/* If a button was clicked (uses event delegation)...*/
+  controls.addEventListener('click',function(e){
+    t = e.target;
+    if(t.nodeName.toLowerCase()==='button'){
+
+/* Check the class name of the button and act accordingly */    
+      switch(t.className){
+
+/* Toggle play functionality and button label */    
+        case 'play':
+          if(v.paused){
+            v.play();
+          } else {
+            v.pause();
+          }
+        break;
+
+/* Increase zoom and set the transformation */
+        case 'zoomin':
+          zoom = zoom + 0.1;
+          v.style[prop]='scale('+zoom+') rotate('+rotate+'deg)';
+        break;
+
+/* Decrease zoom and set the transformation */
+        case 'zoomout':
+          zoom = zoom - 0.1;
+          v.style[prop]='scale('+zoom+') rotate('+rotate+'deg)';
+        break;
+
+/* Increase rotation and set the transformation */
+        case 'rotateleft':
+          rotate = rotate + 5;
+          v.style[prop]='rotate('+rotate+'deg) scale('+zoom+')';
+        break;
+/* Decrease rotation and set the transformation */
+        case 'rotateright':
+          rotate = rotate - 5;
+          v.style[prop]='rotate('+rotate+'deg) scale('+zoom+')';
+        break;
+
+/* Move video around by reading its left/top and altering it */
+        case 'left':
+          v.style.left = (parseInt(v.style.left,10) - 5) + 'px';
+        break;
+        case 'right':
+          v.style.left = (parseInt(v.style.left,10) + 5) + 'px';
+        break;
+        case 'up':
+          v.style.top = (parseInt(v.style.top,10) - 5) + 'px';
+        break;
+        case 'down':
+          v.style.top = (parseInt(v.style.top,10) + 5) + 'px';
+        break;
+
+/* Reset all to default */
+        case 'reset':
+          zoom = 1;
+          rotate = 0;
+          v.style.top = 0 + 'px';
+          v.style.left = 0 + 'px';
+          v.style[prop]='rotate('+rotate+'deg) scale('+zoom+')';
+        break;
+      }        
+
+      e.preventDefault();
+    }
+  },false);
+})();
+
+
+</script>
+</body>
+</html>
